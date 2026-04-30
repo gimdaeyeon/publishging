@@ -3,9 +3,10 @@ import Image from "next/image"
 export default function Footer() {
   return (
     <footer className="bg-[#1a1a1a] text-white">
-      <div className="max-w-[1400px] mx-auto px-6 py-12">
-        {/* Logo row */}
-        <div className="flex items-center gap-3 mb-8">
+      <div className="max-w-[1400px] mx-auto px-10 lg:px-16 py-8">
+
+        {/* 상단 행: 로고 + 회사 정보 */}
+        <div className="flex items-center justify-between">
           <Image
             src="/images/logo.svg"
             alt="RANTT"
@@ -13,40 +14,51 @@ export default function Footer() {
             height={28}
             className="brightness-0 invert"
           />
-          <span className="text-white/80 text-sm">백운밸리 리젠시빌 란트</span>
+          <div className="flex items-center gap-5 text-sm text-white/80">
+            <span>
+              <span className="text-white mr-1.5">시행</span>(주)리젠시빌주택
+            </span>
+            <span className="text-white/30">|</span>
+            <span>
+              <span className="text-white mr-1.5">시공</span>(주)리젠시빌건설&nbsp;&nbsp;(주)리젠시빌주택
+            </span>
+            <span className="text-white/30">|</span>
+            <span>
+              <span className="text-white mr-1.5">온라인사</span>디지털 우주대작전
+            </span>
+          </div>
         </div>
 
-        {/* Company info */}
-        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-400 mb-4">
-          <span><span className="text-gray-500 mr-1">사행</span>(주)리젠시빌주택</span>
-          <span className="hidden sm:inline text-gray-600">|</span>
-          <span><span className="text-gray-500 mr-1">시공</span>(주)리젠시빌건설</span>
-          <span className="hidden sm:inline text-gray-600">|</span>
-          <span><span className="text-gray-500 mr-1">운관리사</span>(주)리젠시빌주택</span>
-          <span className="hidden sm:inline text-gray-600">|</span>
-          <span><span className="text-gray-500 mr-1">온라인사</span>디지털 우주대작전</span>
+        {/* 구분선 */}
+        <div className="border-t border-white/20 my-5" />
+
+        {/* 주소 행 */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/70 mb-4">
+          <span>
+            <span className="font-bold text-white mr-2">견본주택</span>경기도 의왕시 학의동 1181
+          </span>
+          <span className="text-white/30">|</span>
+          <span>
+            <span className="font-bold text-white mr-2">현장</span>경기도 의왕시 백운밸리 A 1BL
+          </span>
+          <span className="text-white/30">|</span>
+          <span>
+            <span className="font-bold text-white mr-2">TEL</span>1599-0757
+          </span>
         </div>
 
-        {/* Address */}
-        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-400 mb-2">
-          <span><span className="text-gray-500 mr-1">견본주택</span>경기도 의왕시 학의동 1181번지</span>
-          <span className="hidden sm:inline text-gray-600">|</span>
-          <span><span className="text-gray-500 mr-1">현장</span>경기도 의왕시 백운밸리 A 1BL</span>
-          <span className="hidden sm:inline text-gray-600">|</span>
-          <span><span className="text-gray-500 mr-1">TEL</span>1599-0757</span>
-        </div>
-
-        {/* Legal disclaimer */}
-        <p className="text-xs text-gray-600 leading-relaxed mt-6 max-w-4xl">
-          본 광고물은 사업주체의 사전에 인쇄된 광고로서 입주자모집공고 이전에 제작된 것으로 실제 내용과 다를 수 있으며, 계약 시에는 관련 법령에 따라 공급계약서 및 입주자 모집공고문의 내용을 확인하여 주시기 바랍니다. 투자에 따른 손실은 귀책에 귀속됩니다.
+        {/* 면책 문구 */}
+        <p className="text-xs text-white/45 leading-relaxed">
+          본 사이트에 사용된 이미지는 소비자의 이해를 돕기 위한 이미지컷으로 실제와 다를 수 있습니다.
+        </p>
+        <p className="text-xs text-white/45 leading-relaxed mb-6">
+          본 사이드는 편집 과정상 오류가 있을 수 있으니 자세한 사항은 견본주택으로 문의해 주시기 바랍니다.
         </p>
 
-        {/* Divider + Copyright */}
-        <div className="border-t border-white/10 mt-8 pt-6">
-          <p className="text-xs text-gray-600 text-center">
-            © 2026 백운밸리리젠시빌란트 CO., LTD. ALL RIGHTS RESERVED.
-          </p>
-        </div>
+        {/* 저작권 */}
+        <p className="text-xs text-white/35">
+          © 2026 백운밸리리젠시빌란트 CO., LTD. ALL RIGHTS RESERVED.
+        </p>
       </div>
     </footer>
   )

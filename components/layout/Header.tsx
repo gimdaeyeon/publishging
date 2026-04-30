@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -41,11 +41,45 @@ const navItems = [
 export default function Header() {
   const [hovered, setHovered] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
+  const [visible, setVisible] = useState(true)
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastScrollY = useRef(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY
+      // 최상단이면 표시, 아니면 숨김
+      if (currentY < 10) {
+        setVisible(true)
+      } else {
+        setVisible(false)
+        setHovered(false)
+      }
+      lastScrollY.current = currentY
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // 드로어 열린 동안 바디 스크롤 잠금
+  useEffect(() => {
+    if (mobileOpen) {
+      const prev = document.body.style.overflow
+      document.body.style.overflow = "hidden"
+      return () => { document.body.style.overflow = prev }
+    }
+  }, [mobileOpen])
+
+  const closeDrawer = () => {
+    setMobileOpen(false)
+    setExpandedIdx(null)
+  }
 
   const open = () => {
     if (leaveTimer.current) clearTimeout(leaveTimer.current)
     setHovered(true)
+    setVisible(true)
   }
   const close = () => {
     leaveTimer.current = setTimeout(() => setHovered(false), 80)
@@ -56,10 +90,18 @@ export default function Header() {
   const subtitleColor = hovered ? "text-gray-600" : "text-white/90"
 
   return (
+    <>
+      {/* 헤더가 숨겨졌을 때도 호버 감지하는 투명 트리거 영역 */}
+      {!visible && (
+        <div
+          className="fixed top-0 left-0 right-0 h-6 z-[51]"
+          onMouseEnter={open}
+        />
+      )}
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-[transform,background-color] duration-300 ${
         hovered ? "bg-white" : "bg-transparent"
-      }`}
+      } ${visible ? "translate-y-0" : "-translate-y-full"}`}
       onMouseEnter={open}
       onMouseLeave={close}
     >
@@ -154,29 +196,94 @@ export default function Header() {
         </button>
       </div>
 
-      {/* ── Mobile menu ── */}
-      {mobileOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 shadow-lg">
-          {navItems.map((item) => (
-            <div key={item.href} className="border-b border-gray-50">
-              <div className="px-6 py-3 text-sm font-bold text-[#1a2d5a]">{item.label}</div>
-              {item.children.map((child) => (
-                <Link
-                  key={child.href}
-                  href={child.href}
-                  className="block px-8 py-2.5 text-sm text-gray-600 hover:bg-gray-50"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {child.label}
-                </Link>
-              ))}
-            </div>
-          ))}
-          <div className="px-6 py-4 border-t border-gray-100">
-            <a href="tel:18990757" className="text-[#1a2d5a] font-bold">☎ 1899-0757</a>
-          </div>
-        </div>
-      )}
     </header>
+
+    {/* ── Mobile: Backdrop ── */}
+    <div
+      className={`md:hidden fixed inset-0 z-[55] bg-black/50 transition-opacity duration-300 ${
+        mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+      onClick={closeDrawer}
+      aria-hidden="true"
+    />
+
+    {/* ── Mobile: Drawer ── */}
+    <aside
+      className={`md:hidden fixed top-0 right-0 z-[60] h-screen w-[78%] max-w-[360px] bg-white flex flex-col shadow-2xl transition-transform duration-300 ease-out ${
+        mobileOpen ? "translate-x-0" : "translate-x-full"
+      }`}
+      role="dialog"
+      aria-modal="true"
+      aria-hidden={!mobileOpen}
+    >
+      {/* 상단: 로고 + X */}
+      <div className="flex items-center justify-between px-6 h-[64px] shrink-0">
+        <Link href="/" onClick={closeDrawer} className="flex items-center">
+          <Image src="/images/logo.svg" alt="RANTT" width={100} height={28} priority />
+        </Link>
+        <button
+          onClick={closeDrawer}
+          aria-label="메뉴 닫기"
+          className="p-2 -mr-2 text-gray-700 hover:text-black"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6" />
+          </svg>
+        </button>
+      </div>
+
+      {/* 메뉴 리스트 */}
+      <nav className="flex-1 overflow-y-auto px-2 py-4">
+        {navItems.map((item, idx) => {
+          const isExpanded = expandedIdx === idx
+          return (
+            <div key={item.href} className="px-4">
+              <button
+                type="button"
+                onClick={() => setExpandedIdx(isExpanded ? null : idx)}
+                className={`w-full text-center py-4 text-[17px] transition-colors ${
+                  isExpanded ? "font-bold text-black" : "font-medium text-gray-800"
+                }`}
+                aria-expanded={isExpanded}
+              >
+                {item.label}
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-out ${
+                  isExpanded ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                <div className="flex flex-col items-center pb-2">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      onClick={closeDrawer}
+                      className="py-2 text-[15px] text-gray-400 hover:text-[#1a2d5a]"
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </nav>
+
+      {/* 하단: 전화번호 */}
+      <div className="border-t border-gray-100 px-6 py-5 shrink-0">
+        <a
+          href="tel:18990757"
+          className="flex items-center justify-center gap-2 text-[#1a2d5a] font-bold text-[18px]"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" />
+          </svg>
+          1899-0757
+        </a>
+      </div>
+    </aside>
+    </>
   )
 }

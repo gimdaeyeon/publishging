@@ -9,7 +9,8 @@
       "Bash(netstat -ano)",
       "PowerShell(Stop-Process -Id 9488 -Force)",
       "PowerShell($proc = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Select-Object -First 1; if \\($proc\\) { Stop-Process -Id $proc.OwningProcess -Force -ErrorAction SilentlyContinue }; Write-Output \"done\")",
-      "Bash(curl -s http://localhost:3000/)"
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(findstr :3000)"
     ]
   }
 }

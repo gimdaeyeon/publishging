@@ -1,31 +1,38 @@
+import Image from "next/image"
+
 export default function DirectionsSection() {
   return (
-    <section className="py-20 lg:py-28 bg-[#f8f8f8]">
-      <div className="max-w-[1400px] mx-auto px-6">
-        {/* Heading */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl sm:text-4xl font-black text-[#1a2d5a] mb-3">오시는 길</h2>
-          <p className="text-gray-500 text-base sm:text-lg">
+    <section className="bg-white bg-[url('/images/pattern.png')] bg-[length:1440px_692px] bg-repeat bg-center px-5 py-[72px] sm:py-24 lg:min-h-[922px] lg:py-[112px]">
+      <div className="relative z-10 mx-auto max-w-[1472px]">
+        <div className="mb-[28px] text-center sm:mb-[34px]">
+          <h2 className="mb-[18px] text-[38px] font-black leading-none text-black sm:text-[48px] lg:text-[50px]">
+            오시는 길
+          </h2>
+          <p className="text-[18px] font-black leading-[1.35] text-black sm:text-[24px]">
             더 빠른 강남, 더 깊은 자연. 의왕 백운밸리의 중심
           </p>
         </div>
 
-        {/* Address */}
-        <div className="text-center mb-10 space-y-1">
-          <p className="text-sm sm:text-base text-gray-700">
-            <span className="font-semibold text-[#1a2d5a] mr-2">견본주택</span>
-            경기도 의왕시 학의동 1181번지
+        <div className="mb-[32px] space-y-[10px] text-center sm:mb-[26px]">
+          <p className="text-[18px] font-bold leading-[1.4] text-[#6d6d6d] sm:text-[22px]">
+            <span className="font-black">견본주택</span> 경기도 의왕시 학의동 1181번지
           </p>
-          <p className="text-sm sm:text-base text-gray-700">
-            <span className="font-semibold text-[#1a2d5a] mr-2">현장</span>
-            경기도 의왕시 백운밸리 A 1BL
+          <p className="text-[18px] font-bold leading-[1.4] text-[#6d6d6d] sm:text-[22px]">
+            <span className="font-black">현장</span> 경기도 의왕시 백운밸리 A 1BL
           </p>
         </div>
 
-        {/* Map image placeholder */}
-        <div className="w-full max-w-4xl mx-auto aspect-[4/3] sm:aspect-[16/9] bg-gray-200 rounded overflow-hidden flex items-center justify-center text-gray-400 text-sm">
-          {/* TODO: <Image src="/images/map.png" alt="오시는 길 지도" fill className="object-cover" /> */}
-          <span>map.png 자리</span>
+        <div className="mx-auto h-[280px] w-full max-w-[856px] overflow-hidden bg-white px-0 py-4 shadow-[0_0_12px_rgba(0,0,0,0.04)] sm:h-[393px] sm:py-6">
+          <div className="relative h-full w-full">
+            <Image
+              src="/images/map.png"
+              alt="견본주택 및 현장 위치 안내 지도"
+              fill
+              sizes="(max-width: 900px) calc(100vw - 40px), 856px"
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
       </div>
     </section>
