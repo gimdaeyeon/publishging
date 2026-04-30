@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
 
 const slides = [
   {
@@ -10,13 +11,13 @@ const slides = [
         title: "청계 IC 바로 앞,\n과천봉담도시고속화도로로\n강남까지 20분대 생활권",
         description:
           "청계 IC 바로 앞, 과천봉담도시고속화도로 인접으로 강남까지 20분대 진입. GTX-C(예정), 월곶판교선(예정)으로 더 강력해지는 폭속 교통망.",
-        imageLabel: "slide1-ic.jpg",
+        image: "/images/section/1_1.png",
       },
       {
         title: "백운호수공원과 백운산,\n모락산으로 둘러싸인\n리조트형 힐링라이프",
         description:
           "백운호수공원, 백운산, 바라산, 모락산이 감싸 안은 천혜의 자연환경 속 리조트형 힐링 라이프 구현.",
-        imageLabel: "slide1-park.jpg",
+        image: "/images/section/1_2.png",
       },
     ],
   },
@@ -27,13 +28,13 @@ const slides = [
         title: "차로 5분 거리에 만나는\n롯데프리미엄 아울렛, 종합병원,\n도보권 초·중학교 다 갖춘 생활 인프라",
         description:
           "쇼핑, 의료, 교육 시설이 가까이 위치해 생활의 편리함을 극대화. 자녀의 안전한 통학 환경과 다양한 문화·여가 시설까지 갖추고 있어 일상의 활달한 요소들 가까운 거리에서 누릴 수 있는 완성형 인프라 자랑.",
-        imageLabel: "slide2-mall.jpg",
+        image: "/images/section/2_1.png",
       },
       {
         title: "GTX-C(2030년 예정),\n월곶판교선(예정), 청계 4차선 확충,\n인덕원 동탄선(예정) 등 어디든 빠른 교통 호재",
         description:
           "다양한 광역 교통망 확충 계획으로 미래 가치가 가파르게 핵심 입지. 수도권 주요 지역을 빠르게 연결하는 교통 호재는 이동 편리성뿐 아니라 성장성과 자산 가치 상승에도 긍정적인 영향을 미칠 것으로 전망.",
-        imageLabel: "slide2-gtx.jpg",
+        image: "/images/section/2_2.png",
       },
     ],
   },
@@ -44,13 +45,13 @@ const slides = [
         title: "남향위주 배치, 59/74 인기 평형\n구성과 혁신적인 4Bay 판상형\n설계로 여유로운 생활의 완성",
         description:
           "채광과 통풍을 극대화한 남향위주 배치로 쾌적한 주거환경 제공. 효율적인 공간 활용과 가족 중심의 동선 설계까지 반영되어 실용성과 편안함을 동시에 만족시키는 공간으로 양방의 만족도를 최대 높임.",
-        imageLabel: "slide3-interior.jpg",
+        image: "/images/section/3_1.png",
       },
       {
         title: "교통·생활·자연 모든 것을\n다 갖춘 의왕 백운밸리\n프리미엄에 오른 마지막 기회",
         description:
           "이미 무성한 인프라와 미래 가치를 동시에 누릴 수 있는 희소성 높은 기회. 지금 상태이 곧 프리미엄으로 이어지는 입지. 살거주는 물론 투자 관점에서도 높은 만족도를 기대.",
-        imageLabel: "slide3-aerial.jpg",
+        image: "/images/section/3_2.png",
       },
     ],
   },
@@ -128,9 +129,7 @@ export default function PerfectLifeSection() {
 
               {/* 좌측 — 대각선 카운터 */}
               <div className="w-[150px] lg:w-[180px] shrink-0">
-                {/* 고정 크기 컨테이너 — 두 숫자가 대각선으로 배치 */}
                 <div className="relative w-[120px] h-[95px] lg:w-[150px] lg:h-[115px]">
-                  {/* 01 — 좌상단 */}
                   <span
                     key={current}
                     className="absolute top-0 left-0 text-[38px] lg:text-[48px] font-black text-black leading-none tabular-nums"
@@ -138,12 +137,10 @@ export default function PerfectLifeSection() {
                   >
                     {slides[current].num}
                   </span>
-                  {/* 슬래시 "/" — 좌하단→우상단 방향 */}
                   <span
                     aria-hidden="true"
                     className="absolute left-[34px] bottom-[10px] lg:left-[42px] lg:bottom-[12px] w-[70px] lg:w-[100px] h-px bg-gray-300 origin-left -rotate-[50deg]"
                   />
-                  {/* 03 — 우하단 */}
                   <span className="absolute bottom-0 right-0 text-[38px] lg:text-[48px] font-bold text-gray-300 leading-none tabular-nums">
                     {String(TOTAL).padStart(2, "0")}
                   </span>
@@ -171,33 +168,36 @@ export default function PerfectLifeSection() {
                       }}
                     >
                       <div className="flex gap-24 lg:gap-28 ml-[32%]">
-                      {slide.features.map((feature, fIdx) => (
-                        <div
-                          key={fIdx}
-                          className="flex flex-col w-[185px] lg:w-[260px]"
-                          style={fIdx === 1 ? { marginTop: "clamp(28px, 6vh, 112px)" } : undefined}
-                        >
-                          {/* 이미지 */}
+                        {slide.features.map((feature, fIdx) => (
                           <div
-                            className="relative w-[185px] lg:w-[260px] overflow-hidden bg-gray-200 rounded-sm flex items-center justify-center shrink-0 max-h-[38vh] lg:max-h-[52vh]"
-                            style={{ aspectRatio: "23/29" }}
+                            key={fIdx}
+                            className="flex flex-col w-[185px] lg:w-[260px]"
+                            style={fIdx === 1 ? { marginTop: "clamp(28px, 6vh, 112px)" } : undefined}
                           >
-                            <span className="text-gray-400 text-xs px-4 text-center">
-                              {feature.imageLabel}
-                            </span>
-
+                            {/* 이미지 */}
+                            <div
+                              className="relative w-[185px] lg:w-[260px] overflow-hidden rounded-sm shrink-0 max-h-[38vh] lg:max-h-[52vh]"
+                              style={{ aspectRatio: "23/29" }}
+                            >
+                              <Image
+                                src={feature.image}
+                                alt={feature.title.replace(/\n/g, " ")}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 1024px) 185px, 260px"
+                              />
+                            </div>
+                            {/* 텍스트 */}
+                            <div style={{ marginTop: "clamp(10px, 2vh, 40px)" }}>
+                              <h3 className="text-base lg:text-lg font-bold text-black leading-snug mb-1 whitespace-pre-line">
+                                {feature.title}
+                              </h3>
+                              <p className="text-xs text-gray-500 leading-relaxed">
+                                {feature.description}
+                              </p>
+                            </div>
                           </div>
-                          {/* 텍스트 */}
-                          <div style={{ marginTop: "clamp(10px, 2vh, 40px)" }}>
-                            <h3 className="text-base lg:text-lg font-bold text-black leading-snug mb-1 whitespace-pre-line">
-                              {feature.title}
-                            </h3>
-                            <p className="text-xs text-gray-500 leading-relaxed">
-                              {feature.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                       </div>
                     </div>
                   )

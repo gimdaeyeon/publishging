@@ -2,7 +2,7 @@ import Image from "next/image"
 
 export default function DirectionsSection() {
   return (
-    <section className="bg-white bg-[url('/images/pattern.png')] bg-[length:1440px_692px] bg-repeat bg-center px-5 py-[72px] sm:py-24 lg:min-h-[922px] lg:py-[112px]">
+    <section className="bg-white bg-[url('/images/pattern.png')] bg-[length:1440px_692px] bg-repeat bg-center px-5 py-[40px] sm:py-16 lg:min-h-0 lg:py-[64px]">
       <div className="relative z-10 mx-auto max-w-[1472px]">
         <div className="mb-[28px] text-center sm:mb-[34px]">
           <h2 className="mb-[18px] text-[38px] font-black leading-none text-black sm:text-[48px] lg:text-[50px]">
