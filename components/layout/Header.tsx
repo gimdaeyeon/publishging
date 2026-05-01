@@ -88,9 +88,9 @@ export default function Header() {
     }, 80)
   }
 
-  const navTextColor = hovered ? "text-gray-800" : "text-white"
-  const phoneTextColor = hovered ? "text-[#1a2d5a]" : "text-white"
-  const subtitleColor = hovered ? "text-gray-600" : "text-white/90"
+  const navTextColor = hovered ? "text-black" : "text-white"
+  const phoneTextColor = hovered ? "text-black" : "text-white"
+  const subtitleColor = hovered ? "text-black" : "text-white/90"
 
   return (
     <>
@@ -166,9 +166,13 @@ export default function Header() {
           href="tel:18990757"
           className={`w-[200px] shrink-0 h-[80px] flex items-center gap-2 justify-end font-semibold text-[20px] transition-colors duration-200 ${phoneTextColor}`}
         >
-          <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" />
-          </svg>
+          <Image
+            src="/images/chatbot.svg"
+            alt="상담"
+            width={20}
+            height={20}
+            className={`shrink-0 transition-[filter] duration-200 ${hovered ? "brightness-0" : ""}`}
+          />
           1899-0757
         </a>
       </div>
@@ -280,9 +284,13 @@ export default function Header() {
           href="tel:18990757"
           className="flex items-center justify-center gap-2 text-[#1a2d5a] font-bold text-[18px]"
         >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" />
-          </svg>
+          <Image
+            src="/images/chatbot.svg"
+            alt="상담"
+            width={22}
+            height={22}
+            className="shrink-0 brightness-0"
+          />
           1899-0757
         </a>
       </div>

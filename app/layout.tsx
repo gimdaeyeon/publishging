@@ -29,28 +29,33 @@ export default function RootLayout({
         <Footer />
 
         {/* Fixed right-side CTA */}
-        {/*<div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-3">*/}
-        {/*  <a*/}
-        {/*    href="/interest"*/}
-        {/*    className="bg-gradient-to-b from-[#1a2d5a] to-[#0f1d3d] text-white flex items-center justify-center px-3.5 py-5 rounded-full shadow-lg hover:from-[#0f1d3d] hover:to-[#0a1530] transition-colors"*/}
-        {/*  >*/}
-        {/*    <span*/}
-        {/*      className="font-extrabold text-[16px] leading-tight tracking-wide whitespace-nowrap"*/}
-        {/*      style={{ writingMode: "vertical-rl" }}*/}
-        {/*    >*/}
-        {/*      관심고객 등록*/}
-        {/*    </span>*/}
-        {/*  </a>*/}
-        {/*  <a*/}
-        {/*    href="/location"*/}
-        {/*    aria-label="오시는 길"*/}
-        {/*    className="w-11 h-11 rounded-full bg-white shadow-lg flex items-center justify-center text-[#1a2d5a] hover:bg-gray-50 transition-colors"*/}
-        {/*  >*/}
-        {/*    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">*/}
-        {/*      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />*/}
-        {/*    </svg>*/}
-        {/*  </a>*/}
-        {/*</div>*/}
+        <div className="hidden md:flex fixed right-12 bottom-[8%] z-40 flex-col items-center gap-2.5">
+          {/* 관심고객 등록 - pill button */}
+          <a
+            href="/interest"
+            className="bg-black text-white flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-[40px] shadow-xl hover:bg-neutral-800 transition-colors w-[62px]"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <circle cx="12" cy="7" r="4" />
+              <path d="M4 21c0-4 3.58-7 8-7s8 3 8 7" strokeLinecap="round" />
+            </svg>
+            <span className="font-bold text-[10px] leading-tight tracking-wide text-center whitespace-nowrap">
+              관심고객<br />등록
+            </span>
+          </a>
+
+          {/* 오시는 길 - circle button */}
+          <a
+            href="/location"
+            aria-label="오시는 길"
+            className="w-[52px] h-[52px] rounded-full bg-white shadow-xl border border-gray-200 flex items-center justify-center text-black hover:bg-gray-50 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path d="M12 2C8.69 2 6 4.69 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.31-2.69-6-6-6z" strokeLinejoin="round" />
+              <circle cx="12" cy="8" r="2" />
+            </svg>
+          </a>
+        </div>
       </body>
     </html>
   )

@@ -63,6 +63,21 @@ export default function PerfectLifeSection() {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [current, setCurrent] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const touchStartX = useRef<number>(0)
+
+  const goToMobileSlide = (idx: number) => {
+    setCurrent(Math.max(0, Math.min(idx, MOBILE_TOTAL - 1)))
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const delta = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(delta) < 40) return
+    goToMobileSlide(delta > 0 ? current + 1 : current - 1)
+  }
 
   // 모바일 감지
   useEffect(() => {
@@ -72,9 +87,12 @@ export default function PerfectLifeSection() {
     return () => window.removeEventListener("resize", check)
   }, [])
 
-  // 스크롤 → current 계산 (effectiveTotal 반응형)
+  // 모바일↔데스크톱 전환 시 current 리셋
+  useEffect(() => { setCurrent(0) }, [isMobile])
+
+  // 스크롤 → current 계산 (데스크톱 전용)
   useEffect(() => {
-    const effectiveTotal = isMobile ? MOBILE_TOTAL : DESKTOP_TOTAL
+    if (isMobile) return
     const handleScroll = () => {
       const wrapper = wrapperRef.current
       if (!wrapper) return
@@ -82,27 +100,25 @@ export default function PerfectLifeSection() {
       const scrolled = -rect.top
       const scrollable = wrapper.offsetHeight - window.innerHeight
       if (scrolled <= 0) { setCurrent(0); return }
-      if (scrolled >= scrollable) { setCurrent(effectiveTotal - 1); return }
-      setCurrent(Math.min(Math.floor((scrolled / scrollable) * effectiveTotal), effectiveTotal - 1))
+      if (scrolled >= scrollable) { setCurrent(DESKTOP_TOTAL - 1); return }
+      setCurrent(Math.min(Math.floor((scrolled / scrollable) * DESKTOP_TOTAL), DESKTOP_TOTAL - 1))
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     handleScroll()
     return () => window.removeEventListener("scroll", handleScroll)
   }, [isMobile])
 
-  const effectiveTotal = isMobile ? MOBILE_TOTAL : DESKTOP_TOTAL
-
   return (
     <div
       ref={wrapperRef}
-      style={{ height: `${effectiveTotal * 100}vh` }}
+      style={{ height: isMobile ? "100vh" : `${DESKTOP_TOTAL * 100}vh` }}
       className="relative"
     >
       <div className="sticky top-0 h-screen bg-white overflow-hidden">
 
-        {/* PREMIUM 워터마크 — 우측 상단 */}
+        {/* PREMIUM 워터마크 — 모바일: 카운터 라인, 데스크톱: 우측 상단 */}
         <span
-          className="pointer-events-none select-none absolute top-6 right-0 text-[clamp(48px,7vw,100px)] font-black text-[#f2f2f7] leading-none tracking-tight z-0"
+          className="pointer-events-none select-none absolute top-[24vh] lg:top-6 right-0 text-[clamp(48px,7vw,100px)] font-black text-[#f2f2f7] leading-none tracking-tight z-0"
           aria-hidden="true"
         >
           PREMIUM
@@ -137,30 +153,34 @@ export default function PerfectLifeSection() {
                 모바일 레이아웃 (lg 미만)
                 카운터 인라인 + 단일 카드 전환
             ════════════════════════════════════════ */}
-            <div className="flex lg:hidden flex-col flex-1 min-h-0">
+            <div
+              className="flex lg:hidden flex-col flex-1 min-h-0"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
 
               {/* 모바일 카운터 */}
               <div className="mb-4 shrink-0">
-                <div className="relative w-[80px] h-[80px]">
+                <div className="relative w-[90px] h-[90px]">
                   <span
                     key={`m-${current}`}
-                    className="absolute top-0 left-0 text-[28px] font-black text-black leading-none tabular-nums"
+                    className="absolute top-0 left-0 text-[32px] font-black text-black leading-none tabular-nums"
                     style={{ animation: "fadeSlideUp 0.4s ease both" }}
                   >
                     {allFeatures[current]?.num}
                   </span>
                   <span
                     aria-hidden="true"
-                    className="absolute top-1/2 left-1/2 w-[90px] h-px bg-gray-300 -translate-x-1/2 -translate-y-1/2 -rotate-[60deg]"
+                    className="absolute top-1/2 left-1/2 w-[110px] h-px bg-gray-300 -translate-x-1/2 -translate-y-1/2 -rotate-[60deg]"
                   />
-                  <span className="absolute bottom-0 right-0 text-[28px] font-bold text-gray-300 leading-none tabular-nums">
+                  <span className="absolute bottom-0 right-0 text-[32px] font-bold text-gray-300 leading-none tabular-nums">
                     {String(MOBILE_TOTAL).padStart(2, "0")}
                   </span>
                 </div>
               </div>
 
               {/* 모바일 슬라이드 (단일 카드) */}
-              <div className="relative flex-1 min-h-0 overflow-visible">
+              <div className="relative flex-1 min-h-0 overflow-hidden">
                 {allFeatures.map((feature, idx) => {
                   const isActive = idx === current
                   const isPrev = idx < current
@@ -169,33 +189,32 @@ export default function PerfectLifeSection() {
                       key={idx}
                       className="absolute inset-0 flex items-start"
                       style={{
-                        opacity: isActive ? 1 : 0,
-                        transform: isActive ? "translateY(0px)" : isPrev ? "translateY(-20px)" : "translateY(20px)",
-                        transition: "opacity 0.55s ease, transform 0.55s ease",
+                        transform: isActive ? "translateX(0%)" : isPrev ? "translateX(-100%)" : "translateX(100%)",
+                        transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                         pointerEvents: isActive ? "auto" : "none",
                       }}
                     >
-                      {/* 이미지 + 텍스트 가로 배치 */}
-                      <div className="flex gap-4 w-full items-start">
+                      {/* 이미지 + 텍스트 세로 배치 */}
+                      <div className="flex flex-col w-full">
                         {/* 이미지 */}
                         <div
-                          className="relative shrink-0 overflow-hidden rounded-sm"
-                          style={{ width: "45vw", aspectRatio: "23/29", maxHeight: "55vh" }}
+                          className="relative w-full overflow-hidden rounded-sm shrink-0"
+                          style={{ aspectRatio: "4/3", maxHeight: "48vh" }}
                         >
                           <Image
                             src={feature.image}
                             alt={feature.title.replace(/\n/g, " ")}
                             fill
                             className="object-cover"
-                            sizes="45vw"
+                            sizes="(max-width: 1024px) 100vw, 45vw"
                           />
                         </div>
                         {/* 텍스트 */}
-                        <div className="flex-1 pt-1">
-                          <h3 className="text-sm font-bold text-black leading-snug mb-2 whitespace-pre-line">
+                        <div className="mt-4">
+                          <h3 className="text-[17px] font-bold text-black leading-snug mb-2 whitespace-pre-line">
                             {feature.title}
                           </h3>
-                          <p className="text-[11px] text-gray-500 leading-relaxed whitespace-pre-line">
+                          <p className="text-[13px] text-gray-500 leading-relaxed whitespace-pre-line">
                             {feature.description}
                           </p>
                         </div>
