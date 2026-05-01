@@ -25,8 +25,8 @@ export default function HeroSection() {
       {/* Background image */}
       <div className="absolute inset-0" aria-hidden="true">
         <Image src={hero_bg2} alt="" fill className="object-cover" priority />
+        <div className="absolute inset-0 bg-black/5" />
       </div>
-      <div className="absolute inset-0 bg-black/5" aria-hidden="true" />
 
       {/* Main content */}
       <motion.div
