@@ -82,7 +82,10 @@ export default function Header() {
     setVisible(true)
   }
   const close = () => {
-    leaveTimer.current = setTimeout(() => setHovered(false), 80)
+    leaveTimer.current = setTimeout(() => {
+      setHovered(false)
+      if (window.scrollY >= 10) setVisible(false)
+    }, 80)
   }
 
   const navTextColor = hovered ? "text-gray-800" : "text-white"
