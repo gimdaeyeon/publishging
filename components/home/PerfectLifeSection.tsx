@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react"
 
 // 6개 개별 피처 (모바일: 하나씩, 데스크톱: 2개씩 묶음)
 const allFeatures = [
@@ -64,6 +65,17 @@ export default function PerfectLifeSection() {
   const [current, setCurrent] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const touchStartX = useRef<number>(0)
+  const shouldReduceMotion = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: wrapperRef,
+    offset: ["start end", "end start"],
+  })
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 90, damping: 24, mass: 0.35 })
+  const premiumY = useTransform(smoothProgress, [0, 1], ["24px", "-24px"])
+  const valueY = useTransform(smoothProgress, [0, 1], ["18px", "-18px"])
+  const valueOpacity = useTransform(smoothProgress, [0, 0.25, 0.85, 1], [0.35, 1, 1, 0.45])
+  const slideTransition = shouldReduceMotion ? { duration: 0 } : { duration: 0.55, ease: "easeOut" as const }
+  const cardTransition = shouldReduceMotion ? { duration: 0 } : { duration: 0.62, ease: "easeOut" as const }
 
   const goToMobileSlide = (idx: number) => {
     setCurrent(Math.max(0, Math.min(idx, MOBILE_TOTAL - 1)))
@@ -87,9 +99,6 @@ export default function PerfectLifeSection() {
     return () => window.removeEventListener("resize", check)
   }, [])
 
-  // 모바일↔데스크톱 전환 시 current 리셋
-  useEffect(() => { setCurrent(0) }, [isMobile])
-
   // 스크롤 → current 계산 (데스크톱 전용)
   useEffect(() => {
     if (isMobile) return
@@ -99,9 +108,15 @@ export default function PerfectLifeSection() {
       const rect = wrapper.getBoundingClientRect()
       const scrolled = -rect.top
       const scrollable = wrapper.offsetHeight - window.innerHeight
-      if (scrolled <= 0) { setCurrent(0); return }
-      if (scrolled >= scrollable) { setCurrent(DESKTOP_TOTAL - 1); return }
-      setCurrent(Math.min(Math.floor((scrolled / scrollable) * DESKTOP_TOTAL), DESKTOP_TOTAL - 1))
+      let next = 0
+      if (scrollable <= 0 || scrolled <= 0) {
+        next = 0
+      } else if (scrolled >= scrollable) {
+        next = DESKTOP_TOTAL - 1
+      } else {
+        next = Math.min(Math.floor((scrolled / scrollable) * DESKTOP_TOTAL), DESKTOP_TOTAL - 1)
+      }
+      setCurrent((prev) => (prev === next ? prev : next))
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     handleScroll()
@@ -117,17 +132,19 @@ export default function PerfectLifeSection() {
       <div className="sticky top-0 h-screen bg-white overflow-hidden">
 
         {/* PREMIUM 워터마크 — 모바일: 카운터 라인, 데스크톱: 우측 상단 */}
-        <span
+        <motion.span
           className="pointer-events-none select-none absolute top-[24vh] lg:top-6 right-0 text-[clamp(48px,7vw,100px)] font-black text-[#f2f2f7] leading-none tracking-tight z-0"
+          style={shouldReduceMotion ? undefined : { y: premiumY }}
           aria-hidden="true"
         >
           PREMIUM
-        </span>
+        </motion.span>
 
         {/* VALUE&FAST 워터마크 — 좌측 하단 */}
-        <span
+        <motion.span
           className="pointer-events-none select-none absolute bottom-2 left-0 text-[clamp(44px,7.5vw,110px)] font-black leading-none tracking-tight z-0"
           style={{
+            ...(shouldReduceMotion ? {} : { y: valueY, opacity: valueOpacity }),
             background: "linear-gradient(to right, #ADDAE1 0%, #D0D0DA 51%, #F6C6CF 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
@@ -136,18 +153,24 @@ export default function PerfectLifeSection() {
           aria-hidden="true"
         >
           VALUE&amp;FAST
-        </span>
+        </motion.span>
 
         {/* 컨텐츠 영역 */}
         <div className="relative z-10 h-full">
           <div className="w-full max-w-[1400px] mx-auto px-6 lg:px-16 h-full flex flex-col pt-[6vh] lg:pt-[8vh] pb-[4vh] lg:pb-[5vh]">
 
             {/* ── 상단: 헤딩 ── */}
-            <div className="mb-4 lg:mb-8">
+            <motion.div
+              className="mb-4 lg:mb-8"
+              initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 22 }}
+              whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true, amount: 0.45 }}
+            >
               <h2 className="text-3xl lg:text-4xl font-black text-black leading-snug">
                 모든 것을 다 갖춘<br />PERFECT LIFE의 완성!
               </h2>
-            </div>
+            </motion.div>
 
             {/* ════════════════════════════════════════
                 모바일 레이아웃 (lg 미만)
@@ -185,41 +208,59 @@ export default function PerfectLifeSection() {
                   const isActive = idx === current
                   const isPrev = idx < current
                   return (
-                    <div
+                    <motion.div
                       key={idx}
                       className="absolute inset-0 flex items-start"
-                      style={{
-                        transform: isActive ? "translateX(0%)" : isPrev ? "translateX(-100%)" : "translateX(100%)",
-                        transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                        pointerEvents: isActive ? "auto" : "none",
-                      }}
+                      initial={false}
+                      animate={
+                        shouldReduceMotion
+                          ? { opacity: isActive ? 1 : 0 }
+                          : { x: isActive ? "0%" : isPrev ? "-100%" : "100%", opacity: isActive ? 1 : 0.98 }
+                      }
+                      transition={{ duration: shouldReduceMotion ? 0 : 0.42, ease: "easeOut" }}
+                      style={{ pointerEvents: isActive ? "auto" : "none" }}
                     >
                       {/* 이미지 + 텍스트 세로 배치 */}
                       <div className="flex flex-col w-full">
                         {/* 이미지 */}
-                        <div
+                        <motion.div
                           className="relative w-full overflow-hidden rounded-sm shrink-0"
                           style={{ aspectRatio: "4/3", maxHeight: "48vh" }}
+                          initial={false}
+                          animate={shouldReduceMotion ? { opacity: isActive ? 1 : 0 } : { scale: isActive ? 1 : 0.985 }}
+                          transition={cardTransition}
                         >
-                          <Image
-                            src={feature.image}
-                            alt={feature.title.replace(/\n/g, " ")}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 1024px) 100vw, 45vw"
-                          />
-                        </div>
+                          <motion.div
+                            className="absolute inset-0"
+                            initial={false}
+                            animate={shouldReduceMotion ? { scale: 1 } : { scale: isActive ? 1.025 : 1 }}
+                            transition={{ duration: shouldReduceMotion ? 0 : 0.85, ease: "easeOut" }}
+                          >
+                            <Image
+                              src={feature.image}
+                              alt={feature.title.replace(/\n/g, " ")}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 1024px) 100vw, 45vw"
+                            />
+                          </motion.div>
+                        </motion.div>
                         {/* 텍스트 */}
-                        <div className="mt-4">
+                        <motion.div
+                          className="mt-4"
+                          initial={false}
+                          animate={shouldReduceMotion ? { opacity: isActive ? 1 : 0 } : { opacity: isActive ? 1 : 0, y: isActive ? 0 : 14 }}
+                          transition={{ duration: shouldReduceMotion ? 0 : 0.45, delay: isActive ? 0.08 : 0, ease: "easeOut" }}
+                        >
                           <h3 className="text-[17px] font-bold text-black leading-snug mb-2 whitespace-pre-line">
                             {feature.title}
                           </h3>
                           <p className="text-[13px] text-gray-500 leading-relaxed whitespace-pre-line">
                             {feature.description}
                           </p>
-                        </div>
+                        </motion.div>
                       </div>
-                    </div>
+                    </motion.div>
                   )
                 })}
               </div>
@@ -257,49 +298,73 @@ export default function PerfectLifeSection() {
                   const isActive = idx === current
                   const isPrev = idx < current
                   return (
-                    <div
+                    <motion.div
                       key={idx}
                       className="absolute inset-0 flex items-start"
-                      style={{
-                        opacity: isActive ? 1 : 0,
-                        transform: isActive ? "translateY(0px)" : isPrev ? "translateY(-20px)" : "translateY(20px)",
-                        transition: "opacity 0.55s ease, transform 0.55s ease",
-                        pointerEvents: isActive ? "auto" : "none",
-                      }}
+                      initial={false}
+                      animate={
+                        shouldReduceMotion
+                          ? { opacity: isActive ? 1 : 0 }
+                          : { opacity: isActive ? 1 : 0, y: isActive ? 0 : isPrev ? -22 : 22 }
+                      }
+                      transition={slideTransition}
+                      style={{ pointerEvents: isActive ? "auto" : "none" }}
                     >
                       <div className="flex gap-28 ml-[32%]">
                         {slide.features.map((feature, fIdx) => (
-                          <div
+                          <motion.div
                             key={fIdx}
                             className="flex flex-col w-[260px]"
+                            initial={false}
+                            animate={
+                              shouldReduceMotion
+                                ? { opacity: isActive ? 1 : 0 }
+                                : { opacity: isActive ? 1 : 0, y: isActive ? 0 : 18, scale: isActive ? 1 : 0.985 }
+                            }
+                            transition={{ ...cardTransition, delay: isActive && !shouldReduceMotion ? fIdx * 0.1 : 0 }}
                             style={fIdx === 1 ? { marginTop: "clamp(20px, 4vh, 64px)" } : undefined}
                           >
                             {/* 이미지 */}
-                            <div
+                            <motion.div
                               className="relative w-[260px] overflow-hidden rounded-sm shrink-0 max-h-[38vh]"
                               style={{ aspectRatio: "23/29" }}
+                              initial={false}
+                              animate={shouldReduceMotion ? { opacity: isActive ? 1 : 0 } : { opacity: isActive ? 1 : 0.9 }}
+                              transition={cardTransition}
                             >
-                              <Image
-                                src={feature.image}
-                                alt={feature.title.replace(/\n/g, " ")}
-                                fill
-                                className="object-cover"
-                                sizes="260px"
-                              />
-                            </div>
+                              <motion.div
+                                className="absolute inset-0"
+                                initial={false}
+                                animate={shouldReduceMotion ? { scale: 1 } : { scale: isActive ? 1.035 : 1 }}
+                                transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: "easeOut" }}
+                              >
+                                <Image
+                                  src={feature.image}
+                                  alt={feature.title.replace(/\n/g, " ")}
+                                  fill
+                                  className="object-cover"
+                                  sizes="260px"
+                                />
+                              </motion.div>
+                            </motion.div>
                             {/* 텍스트 */}
-                            <div style={{ marginTop: "clamp(8px, 1.4vh, 20px)" }}>
+                            <motion.div
+                              style={{ marginTop: "clamp(8px, 1.4vh, 20px)" }}
+                              initial={false}
+                              animate={shouldReduceMotion ? { opacity: isActive ? 1 : 0 } : { opacity: isActive ? 1 : 0, y: isActive ? 0 : 12 }}
+                              transition={{ duration: shouldReduceMotion ? 0 : 0.48, delay: isActive && !shouldReduceMotion ? 0.12 + fIdx * 0.08 : 0, ease: "easeOut" }}
+                            >
                               <h3 className="text-lg font-bold text-black leading-snug mb-1 whitespace-pre-line">
                                 {feature.title}
                               </h3>
                               <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-line">
                                 {feature.description}
                               </p>
-                            </div>
-                          </div>
+                            </motion.div>
+                          </motion.div>
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                   )
                 })}
               </div>

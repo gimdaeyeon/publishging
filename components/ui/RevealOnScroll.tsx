@@ -11,6 +11,7 @@ interface Props {
 
 export default function RevealOnScroll({ children, className = "", delay = 0, variant = "slide" }: Props) {
   const ref = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const el = ref.current
@@ -19,18 +20,21 @@ export default function RevealOnScroll({ children, className = "", delay = 0, va
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          const timer = setTimeout(() => {
+          const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          timerRef.current = setTimeout(() => {
             el.classList.add("visible")
-          }, delay)
+          }, reduceMotion ? 0 : delay)
           observer.disconnect()
-          return () => clearTimeout(timer)
         }
       },
       { threshold: 0.15 }
     )
 
     observer.observe(el)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
   }, [delay])
 
   const baseClass = variant === "fade" ? "reveal-fade" : "reveal"

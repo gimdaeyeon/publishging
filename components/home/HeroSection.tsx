@@ -1,18 +1,38 @@
+"use client"
+
+import { useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import hero_bg2 from "@/public/images/hero-bg2.png"
 
 export default function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const shouldReduceMotion = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  })
+
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0px", "-54px"])
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.72], [1, 0.28])
+
   return (
-    <section className="relative w-full h-screen min-h-[720px] flex items-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative w-full h-screen min-h-[720px] flex items-center overflow-hidden"
+    >
       {/* Background image */}
       <div className="absolute inset-0" aria-hidden="true">
         <Image src={hero_bg2} alt="" fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-black/5" />
       </div>
+      <div className="absolute inset-0 bg-black/5" aria-hidden="true" />
 
       {/* Main content */}
-      <div className="relative z-10 max-w-[1400px] mx-auto px-20 lg:px-28 w-full pt-[80px]">
+      <motion.div
+        className="relative z-10 max-w-[1400px] mx-auto px-20 lg:px-28 w-full pt-[80px]"
+        style={shouldReduceMotion ? undefined : { y: contentY, opacity: contentOpacity }}
+      >
 
         {/* "6월 오픈예정" */}
         <div
@@ -54,7 +74,7 @@ export default function HeroSection() {
             About <span className="font-bold">RANTT</span>
           </Link>
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }
